@@ -5,9 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+FILE *file;
+
 /*index hashtable*/
 struct Indexer {
-	
+	struct tkNode* array;
 };
 typedef struct Indexer Index;
 
@@ -41,8 +43,11 @@ int IndexOutput(Index *indx);
 /*hash function that insert uses*/
 int Hash(char c);
 
-/*reads the file and tokenizes data*/
-int ReadFile(char *fileName);
+/*reads the file and returns string*/
+char* ReadFile(char* fileName);
+
+/*reads from directory:*/
+int ReadDir(char* dirpath);
 
 /*appends character to end of string*/
 char* Concat(char* string, char c);
