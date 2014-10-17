@@ -28,51 +28,168 @@ Index IndexCreate(SortedListPtr list, char* indexName) {
 }
 
 int IndexInsert(Index *indx, char* tk, char* fileName) {
-	/*initialize the position in the table to 0*/
 	int indxPos = 0;
-	/*find the first character of the given token*/
 	char firstChar = tk[0];
-	/*calloc a test node to insert the given data into*/
-	fileNode testf = calloc(sizeof(fileNode));
-	/*set the fileName field to the given file name*/
-	testf->fileName = fileName;
-	/*set the token count to 1 by default*/
-	testf->count = 1;
-	/*initially set next to null*/
-	testf->next = NULL;
-	/*determine position in table via hash function*/
+	
+	fileNode tempf = calloc(sizeof(fileNode));
+	tkNode tempt = calloc(sizeof(tkNode));
+	
+	tempf->fileName = fileName;
+	tempf->count = 1;
+	tempf->next = NULL;
+	
+	tempt->tk = tk;
+	tempt->file = tempf;
+	tempt->next = NULL;
+	
 	indxPos = Hash(firstChar);
-	/*if the position is empty, add it there*/
-	if (indx[indxPos]->tk == NULL) {
-		/*set the token to the given one*/
-		indx->array[indxPos]->tk = tk;
-		/*sets the file node to the current one*/
-		indx->array[indxPos]->file = testf;
-		/*return 0 because it worked*/
-		return 0;
-	} else {
-		/*if the position is not empty make new token node*/
-		tkNode testt = calloc(sizeof(tkNode));
-		testt->tk = tk;
-		testt->file = test;
-		testt->next = NULL;
-		/*prepare to walk through linked list at indxPos*/
-		tkNode *previous = indx->array[indxPos];
-		tkNode *current = testt;
-		/*begin to walk through linked list*/
-		while (current != NULL) {
-			if (previous->tk == current->tk) {
-				
-			}
-			if (previous->next == NULL) {
-				previous->next = current;
-				current->next = NULL;
-			}
-			previous = current;
-			current = current->next;		
-		}
-}
 
+	/*if that position in the array is empty, add it there*/
+	if (indx[indxPos]->tk == NULL) {
+		indx->array[indxPos]->tk = tk;
+		indx->array[indxPos]->file = tempf;
+		return 0;
+	}
+
+	tempt->tk = tk;
+	tempt->file = tempf;
+	tempt->next = NULL;
+	tkNode *previous = indx->array[indxPos];
+
+	/*if there is only one token node in the list*/
+	if (previous != NULL && previous->next == NULL) {
+		int a = strcmp(previous->tk, tempt->tk);
+		if (a > 0) {
+			/*insert before*/
+			tempt->next = previous;
+			indx->array[indxPos] = tempt;
+			return 1;
+		}
+		if (a < 0) {
+			/*insert after*/
+			previous->next = tempt;
+			tempt->next = NULL;
+			return 1;
+		}
+		if (a == 0) {
+			fileNode* prevFile = previous->file;
+			if (prevFile != NULL && prevFile->next == NULL) {
+				int b = strcmp(prevFile->fileName, tempf->fileName);
+				if (b > 0) {
+					/*insert before*/
+					tempf->next = prevFile;
+					previous->file = tempf;
+					return 1;
+				}
+				if (b < 0) {
+					/*insert after*/
+					prevFile->next = tempf;
+					tempf->next = NULL;
+					return 1;
+				}
+				if (b == 0) {
+					/*increment token count in file*/
+					prevFile->count++;
+					return 1;
+				}
+				return 0;
+			}
+			fileNode *currFile = prevFile->next;
+			while (currFile != NULL) {
+				int b = strcmp(currFile->fileName, tempf->fileName);
+				if (b > 0) {
+					/*insert before*/
+					tempf->next = currFile;
+					prevFile->next = tempf;
+					return 1;
+				}
+				if (b == 0) {
+					/*increment count because same filename*/
+					currFile->count++;
+					return 1;
+				}
+				if (currFile->next == NULL) {
+					currFile->next = tempf;
+					tempf->next = NULL;
+					return 1;
+				}
+				prevFile = currFile;
+				currFile = currFile->next;
+			}
+			return 0;
+		}
+		return 0;
+	}
+	fileNode *current = previous->next;
+	while (current != NULL) {
+		int a = strcmp(current->tk, tempt->tk);
+		if (a > 0) {
+			/*insert before because previous is larger than current*/
+			tempt->next = current;
+			previous->next = tempt;
+			return 1;
+		}
+		if (a == 0) {
+			/*same token, move through file list*/
+			fileNode *prevFile = current->file;
+			if (prevFile != NULL && prevFile->next == NULL) {
+				int b = strcmp(prevFile, tempf);
+				if (b > 0) {
+					/*add before*/
+					tempf->next = prevFile;
+					previous->file = tempf;
+					return 1;
+				}
+				if (b < 0) {
+					/*add after*/
+					prevFile->next = tempf;
+					tempf->next = NULL;
+					return 1;
+				}
+				if (b == 0) {
+					/*increment token count for file name*/	
+					prevFile->count++;
+					return 1;
+				}
+			}
+			if (prevFile != NULL) {
+				int b = strcmp(prevFile->fileName, tempf->fileName);
+				if (
+			}
+			fileNode *currFile = prevFile->next;
+			while (currFile != NULL) {
+				int b = strcmp(currFile->fileName, tempf->fileName);
+				if (b > 0) {
+					/*add before*/
+					tempf->next = currFile;
+					prevFile->next = tempf;
+					return File;
+					
+				}
+				if (b == 0) {
+					/*increment token count*/
+					currFile->count++;
+					return 1;
+				}
+				if (currFile->next == NULL) {
+					/*add after*/
+					
+				}
+				prevFile = currFile;
+				currFile = currFile->next;
+			}
+		}
+		/*if current->next is null add temp node to end*/
+		if (current->next = NULL) {
+			current->next = tempt;
+			tempt->next = NULL;
+			return 1;
+		}
+		/*if previous token is less than current token continue walk*/
+		previous = current;
+		current = current->next;		
+	}
+}
 int IndexOutput(Index *indx) {
 	
 }
