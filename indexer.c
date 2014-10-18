@@ -3,18 +3,11 @@
 #include <string.h>
 
 #include "indexer.h"
-
+/*done*/
 Index IndexCreate(SortedListPtr list, char* indexName) {
 	/*calloc space for the index*/
-	Index index = (Index)calloc(1, sizeof(struct Index));
-	/*calloc 36 token nodes for the array*/
-	index->array = calloc(36 * sizeof(tkNode));
-	/*null out all 36 token nodes (just to be sure)*/
-	for(int i = 0; i < 36; i++) {
-		index->array[i]->tk = NULL;
-		index->array[i]->file = NULL;
-		index->array[i]->next = NULL;
-	}
+	Index* index = (Index*)calloc(1, sizeof(Index));
+	indexFile = fopen(indexName, "w");
 	/*if the index ends up null return null*/
 	if (index == NULL) {
 		return NULL;
@@ -26,7 +19,7 @@ Index IndexCreate(SortedListPtr list, char* indexName) {
 	/*if somehow those 2 conditions aren't met return null*/
 	return NULL;
 }
-
+/*check this*/
 int IndexInsert(Index *indx, char* tk, char* fileName) {
 	int indxPos = 0;
 	char firstChar = tk[0];
@@ -45,7 +38,7 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 	indxPos = Hash(firstChar);
 
 	/*if that position in the array is empty, add it there*/
-	if (indx[indxPos]->tk == NULL) {
+	if (indx->array[indxPos]->tk == NULL) {
 		indx->array[indxPos]->tk = tk;
 		indx->array[indxPos]->file = tempf;
 		return 0;
@@ -151,10 +144,15 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 					prevFile->count++;
 					return 1;
 				}
+				return 0;
 			}
-			if (prevFile != NULL) {
-				int b = strcmp(prevFile->fileName, tempf->fileName);
-				if (
+			/*make sure first file in list is smaller than given name*/
+			int c = strcmp(prevFile->fileName, tempf->fileName);
+			if (b > 0) {
+				/*add before because first file is larger*/
+				tempf->next = prevFile;
+				current->file = tempf;
+				return 1;	
 			}
 			fileNode *currFile = prevFile->next;
 			while (currFile != NULL) {
@@ -163,7 +161,7 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 					/*add before*/
 					tempf->next = currFile;
 					prevFile->next = tempf;
-					return File;
+					return 1;
 					
 				}
 				if (b == 0) {
@@ -173,7 +171,9 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 				}
 				if (currFile->next == NULL) {
 					/*add after*/
-					
+					currFile->next = tempf;
+					tempf->next = NULL:
+					return 1;
 				}
 				prevFile = currFile;
 				currFile = currFile->next;
@@ -190,10 +190,50 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 		current = current->next;		
 	}
 }
+/*done*/
 int IndexOutput(Index *indx) {
-	
+	int i, j;
+	fileNode *fileNode_Ptr;
+	tkNode *tkNode_Ptr;
+	j = 0;
+	/*check all buckets in index*/
+	for(i = 0; i < 36; i++) {
+		tkNode_Ptr = &indx->array[i];
+		fileNode_Ptr = indx->array[i].file;
+		/*while there is a token in the index bucket*/
+		while(tkNode_Ptr != NULL) {
+			/*if the token is not null, print header with token*/
+			if(tkNode_Ptr->tk != NULL) {
+				fprintf(indexFile, "<list> %s \n \n", tkNode_Ptr->tk);
+			}
+			/*while the fileNode is not null*/
+			while(fileNode_Ptr != NULL) {
+				/*if the next fileNode dne, print the end of the list*/
+				if (fileNode_Ptr->next == NULL) {
+					fprintf(indexFile, " %s %d \n \n </list> \n \n", fileNode_Ptr->fileName, fileNode_Ptr->count);
+					break;
+				/*otherwise print the file nodes and counts*/
+				} else {
+					/*if there are 5 nodes on a line, make a new line*/
+					if (j == 5) {
+						fprintf(indexFile, "\n");
+						j = 0;
+					/*print the file nodes and counts*/
+					} else {
+						fprintf(indexFile, " %s %d ", fileNode_Ptr->fileName, fileNode_Ptr->count);
+						fileNode_Ptr = fileNode_Ptr->next;
+						j++;
+					}
+				}
+			}
+			tkNode_Ptr = tkNode_Ptr->next;
+			if (tkNode_Ptr != NULL) {
+				fileNode_Ptr = tkNode_Ptr->file;
+			}
+		}
+	}	
 }
-
+/*done*/
 int Hash(char c) {
 	/*convert character to ascii*/
 	int charNum = c;
@@ -211,7 +251,7 @@ int Hash(char c) {
 	printf("character not in expected range\n");
 	return 0;
 }
-
+/*done*/
 char* ReadFile(char* fileName) {
 	/*if the file isn't there*/
 	if (fileName == NULL) {
@@ -245,16 +285,16 @@ char* ReadFile(char* fileName) {
 }
 
 char* ReadDir(char* dirPath) {
-
+	/*durrrrrrrrrrrrrrr*/
 }
-
+/*done*/
 char* Concat(char* string, char c) {
 	int length = strlen(string);
 	char* test = calloc(length * sizeof(char));
 	test = strncat(string, &c, 1);
 	return test;
 }
-
+/*done*/
 char* ConcatStr(char* p1, char* p2) {
 	char* test = calloc(length * sizeof(char));
 	test = strcat(p1, p2);
@@ -262,8 +302,11 @@ char* ConcatStr(char* p1, char* p2) {
 }
 
 void IndexDestroy(Index *indx) {
-	if (indx = NULL) {
+	if (indx->array[] = NULL) {
+		free(indx);
 		return;
 	}
+	for(int i = 0; i < 36; i++) {
 		
+	}	
 }
