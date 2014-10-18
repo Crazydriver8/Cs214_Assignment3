@@ -4,7 +4,7 @@
 
 #include "indexer.h"
 /*done*/
-Index IndexCreate(SortedListPtr list, char* indexName) {
+Index IndexCreate(char* indexName) {
 	/*calloc space for the index*/
 	Index* index = (Index*)calloc(1, sizeof(Index));
 	indexFile = fopen(indexName, "w");
@@ -285,7 +285,7 @@ char* ReadFile(char* fileName) {
 }
 
 char* ReadDir(char* dirPath) {
-	/*durrrrrrrrrrrrrrr*/
+	
 }
 /*done*/
 char* Concat(char* string, char c) {
