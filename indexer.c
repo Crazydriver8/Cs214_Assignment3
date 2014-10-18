@@ -302,11 +302,58 @@ char* ConcatStr(char* p1, char* p2) {
 }
 
 void IndexDestroy(Index *indx) {
+	//check if there is any data in hash table
 	if (indx->array[] = NULL) {
 		free(indx);
 		return;
 	}
+	//go through all 36 buckets of hashtable
 	for(int i = 0; i < 36; i++) {
-		
-	}	
+		//if the bucket is not null
+		if (indx->array[i] != NULL) {
+			//if there are no tokens after the first token
+			if (indx->array[i]->next == NULL) {
+				//free that token and continue through the buckets
+				free(indx->array[i]);
+				continue;
+			}
+			tkNode* previous = indx->array[i];
+			tkNode* current = indx->array[i]->next;
+			while (current != NULL) {
+				//if the previous tkNode doesn't have a fileNode
+				if (previous->file == NULL) {
+					//free that tkNode, continue walking through tkNodes
+					free(previous);
+					previous = current;
+					current = current->next;
+					continue;
+				}
+				//if there is only one fileNode in the tkNode
+				if (previous->file->next == NULL) {
+					//free the fileNode and tkNode, continue walking
+					free(previous->file);
+					free(previous);
+					previous = current;
+					current = current->next;
+					continue;
+				}
+				fileNode* prevFile = previous->file;
+				fileNode* currFile = previous->file->next;
+				//while there are more fileNodes in the tkNode
+				while (currFile != NULL) {	
+					//walk through and free the files
+					free(prevFile);
+					prevFile = currFile;
+					currFile = currFile->next;
+				}
+				//free the tkNode and continue walking
+				free(previous);
+				previous = current;
+				current = current->next;
+			}
+		}
+	}
+	//after all tkNodes and fileNodes are freed, free index and return	
+	free(indx);
+	return;
 }
