@@ -5,31 +5,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-FILE *file;
-
 /*index hashtable*/
 struct Indexer {
-	struct tkNode* array;
+	struct tkNode* Array;
 };
 typedef struct Indexer Index;
 
-/*token node contains token name, pointer to first file node, 
+/*token node contains token name, pointer to first file node,
   and pointer to next token*/
-struct tkNode_{
+struct tkNode{
 	char* tk;
-	struct fileNode* file;
+	struct fileNode* fileNodePTR;
 	struct tkNode* next;
 };
-typedef struct tkNode_ tkNode;
+typedef struct tkNode tkNode;
 
-/*file node contains file name, frequency of token in file, 
+/*file node contains file name, frequency of token in file,
 and pointer to the next node*/
-struct fileNode_ {
-	char* fileName;
-	int count;
+struct fileNode {
+	const char* fileName;
+	int Count;
 	struct fileNode* next;
 };
-typedef struct fileNode_ fileNode;
+typedef struct fileNode fileNode;
+//global variables definition
+FILE *file_read;    //pointer to file to read from
+FILE *file_write;   //pointer to file to output hash content
+Index *indx;        //pointer to hash table
 
 /*creates a new hashtable to index*/
 Index *IndexCreate(char* outputName);
@@ -38,7 +40,7 @@ Index *IndexCreate(char* outputName);
 int IndexInsert(Index *indx, char* tk,  char* fileName);
 
 /*output contents of index to file*/
-int IndexOutput(Index *indx);
+void IndexOutput(Index *indx);
 
 /*hash function that insert uses*/
 int Hash(char c);
@@ -50,7 +52,7 @@ char* ReadFile(char* fileName);
 int ReadDir(char* dirpath);
 
 /*appends character to end of string*/
-char* Concat(char* string, char c);
+char* Concat(char* String, char c);
 
 /*combines strings*/
 char* ConcatStr(char* p1, char* p2);
