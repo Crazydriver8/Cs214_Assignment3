@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
-#include "tokenizer.c"//is this correct? without this I get errors maybe we have to merge the tokenizer and indexer .h files
+#include "tokenizer.h"//is this correct? without this I get errors maybe we have to merge the tokenizer and indexer .h files
 
 /*index hashtable*/
 struct Indexer {

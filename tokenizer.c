@@ -6,7 +6,8 @@
 /*
  * Tokenizer type.  You need to fill in the type as part of your implementation.
  */
-
+#define MAX_HEX_CHARS 2
+#define MAX_OCT_CHARS 3
 char is_escape_character(char character) {
 	
 	/*
