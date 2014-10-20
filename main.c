@@ -16,11 +16,15 @@ int main(int argc, char * argv[]) {
         printf("Error few arguments\n");
         return -1;
     }
-    indx = IndexCreate(argv[1]);
-    ReadDir((char*)argv[2]);
-    IndexOutput(indx);
-    IndexDestroy(indx);
-    return 0;
+	char* dirName = argv[2];
+	char* indexName = argv[1];
+	indx = IndexCreate(indexName);
+	if (indx != NULL) {
+		ReadDir(dirName);
+		IndexOutput(indx);
+	}
+	IndexDestroy(indx);
+	return 0;
 } 
    /*
     **************PSEUDO CODE******************

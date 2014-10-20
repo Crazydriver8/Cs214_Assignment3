@@ -196,9 +196,15 @@ void IndexOutput(Index *indx) {
 	j = 0;
 	//check all buckets in index
 	for(i = 0; i < 36; i++)
-    {
+	{
+		if (indx->Array == NULL) {
+			printf("empty array\n");
+			return;
+		}
 		tkNode_Ptr = &indx->Array[i];
-		fileNodeTmpPtr = indx->Array[i].fileNodePTR;
+		if(indx->Array[i].fileNodePTR != NULL) {
+			fileNodeTmpPtr = indx->Array[i].fileNodePTR;
+		}
 		//while there is a token in the index bucket
 		while(tkNode_Ptr != NULL)
         {
@@ -296,7 +302,7 @@ int hashToken(char* fileName)
 	}
    	if (a != 0)
     	{
-		printf("cannot read from file");
+		printf("cannot read from file\n");
 		return 1;
 	}
 	tokenizer = TKCreate(sep, test);//create tokenzier object passing separator and token string
@@ -314,14 +320,14 @@ int hashToken(char* fileName)
 //hashToken function which reads file content and tokenizes it
 int ReadDir(char* dirPath)
 {
-	char *dirPATH = dirPath; //string contains directory path *path
+	const char* dirPATH = (const char*)dirPath; //string contains directory path *path
 	char *fileAccessPath; //string containing file path *filePath
 	DIR *dirStream; //directory stream *dir
 	struct dirent *readDir; //*entry;
 	//if file hash it
 	if((readDir = opendir(dirPATH)) == 0)
 	{
-		hashToken(fileAccessPath);
+		hashToken((char*)dirPATH);
 		return 0;
 	}
 	//search through the file system to find and read all files
@@ -329,8 +335,8 @@ int ReadDir(char* dirPath)
 	{
 		if(readDir->d_type == DT_REG && strcmp(readDir->d_name, ".DS_Store")) //not hidden file
         	{
-			fileAccessPath = dirPATH;
-			fileAccessPath = Concat(dirPATH, '/');//add "/" to string in dirPath
+			fileAccessPath = (char*)dirPATH;
+			fileAccessPath = Concat((char*)dirPATH, '/');//add "/" to string in dirPath
 			fileAccessPath = ConcatStr(fileAccessPath, readDir->d_name);
 			hashToken(fileAccessPath);	//hash file
 		}
@@ -343,9 +349,9 @@ int ReadDir(char* dirPath)
 			}
 			else
             		{
-				dirPATH = Concat(dirPATH, '/');
-				dirPATH = ConcatStr(dirPATH, readDir->d_name);	//concatenate "/" and directory name for recursing
-				ReadDir(dirPATH);
+				dirPATH = Concat((char*)dirPATH, '/');
+				dirPATH = ConcatStr((char*)dirPATH, readDir->d_name);	//concatenate "/" and directory name for recursing
+				ReadDir((char*)dirPATH);
 				dirPATH = dirPath;	//after recursing reset path to current directory
 			}
 		}
@@ -370,14 +376,15 @@ char* ConcatStr(char* p1, char* p2) {
 
 void IndexDestroy(Index *indx) {
 	//check if there is any data in hash table
-	if (indx == NULL) {
-		return;
-	}
 	int i=0;
-	tkNode *current_TK_temp;
- 	tkNode *next_TK_temp;
+	tkNode *current_TK_temp = &indx->Array[0];
+ 	tkNode *next_TK_temp = NULL;
 	fileNode *current_File_temp;
 	fileNode *next_File_temp;
+	if (indx->Array != NULL) {	
+		current_File_temp = indx->Array[0].fileNodePTR;
+		next_File_temp = NULL;
+	}
 	//go through all 36 buckets of hashtable
 	for(i = 0; i < 36; i++) {
 		//if the bucket is not null
