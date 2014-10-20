@@ -33,4 +33,4 @@ void TKDestroy(TokenizerT *tk);
 char is_delimiter(char character, char* delimiters);
 
 char *TKGetNextToken(TokenizerT *tk);
-
+#endif

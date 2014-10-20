@@ -285,7 +285,7 @@ char *TKGetNextToken(TokenizerT *tk) {
  * Print out the tokens in the second string in left-to-right order.
  * Each token should be printed on a separate line.
  */
-
+/*
 int main(int argc, char **argv) {
 	
 	if(argc != 3){
@@ -309,4 +309,4 @@ int main(int argc, char **argv) {
 	TKDestroy(tokenizer);
 
 	return 0;
-}
+}*/

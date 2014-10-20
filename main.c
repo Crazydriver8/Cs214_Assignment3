@@ -1,11 +1,10 @@
 /*
-Laszlo Glant & Brandon Barrios
+Laszlo Glant & Brandon Berrios
 */
 #include <stdio.h>
 #include <string.h>
 #include "indexer.h"
-int main(int argc, const char * argv[]) {
-
+int main(int argc, char * argv[]) {
     if(argc > 3)
     {
         printf("Error too many arguments\n");
@@ -19,10 +18,11 @@ int main(int argc, const char * argv[]) {
     }
     indx = IndexCreate(argv[1]);
     ReadDir((char*)argv[2]);
-    IndexOutput(ht);
-    IndexDestroy(ht);
+    IndexOutput(indx);
+    IndexDestroy(indx);
     return 0;
-    /*
+} 
+   /*
     **************PSEUDO CODE******************
     user enters file_name output_file_name input_dir/file_name
     IN MAIN with arg[1] call IndexCreate DONE
@@ -32,4 +32,4 @@ int main(int argc, const char * argv[]) {
         call indexInsert to insert tokens into the hash table
     IN MAIN when no more files/dir found call IndexOutput to write the data in hash table DONE
     IN MAIN call indexDestroy to free memory DONE
-}
+}*/
