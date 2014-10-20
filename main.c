@@ -5,24 +5,26 @@ Laszlo Glant & Brandon Berrios
 #include <string.h>
 #include "indexer.h"
 int main(int argc, char * argv[]) {
-    if(argc > 3)
-    {
-        printf("Error too many arguments\n");
-        return -1;
-    }
+  
+	char* dirName;
+	char* indexName;
+	if(argc > 3)
+   	 {
+       		 printf("Error too many arguments\n");
+       		 return -1;
+   	 }
 
-    if(argc < 3)
-    {
-        printf("Error few arguments\n");
-        return -1;
-    }
-	char* dirName = argv[2];
-	char* indexName = argv[1];
+   	 if(argc < 3)
+   	{
+       		 printf("Error few arguments\n");
+       		 return -1;
+  	}
+	dirName = argv[2];
+	indexName = argv[1];
 	indx = IndexCreate(indexName);
-	if (indx != NULL) {
-		ReadDir(dirName);
-		IndexOutput(indx);
-	}
+
+	ReadDir(dirName);
+	IndexOutput(indx);
 	IndexDestroy(indx);
 	return 0;
 } 

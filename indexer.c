@@ -1,37 +1,37 @@
 #include <dirent.h>
 #include "indexer.h"
-//done no compile errors
 Index *IndexCreate(char* indexName) {
-	//calloc space for the index
 	Index* index = (Index*)calloc(1, sizeof(Index));
+	index->Array[36];
 	file_write = fopen(indexName, "w");
-	//if the index is made right return the index
 	if (index != NULL) {
 		return index;
 	}
-	//if somehow those 2 conditions aren't met return null
 	return NULL;
 }
-//check this
 
-//Why do we want to return a value? Just in case we have bug testing
-//It returns 0 if it detected a failure, 1 if it did not
-//Can we use the sorted list to organize the nodes instead of rewriting the code
 int IndexInsert(Index *indx, char* tk, char* fileName) {
 	int indxPos = 0;
+	int a, b;
 	char firstChar = tk[0];
 
-	fileNode *tempf = calloc(1, (sizeof(fileNode)));
-	tkNode *tempt = calloc(1, (sizeof(tkNode)));
-
+	fileNode *tempf = calloc(1, sizeof(fileNode));
+	fileNode *currFile;
+	fileNode *prevFile;
+	fileNode *nextFile;
+	tkNode *tempt = calloc(1, sizeof(fileNode));
+	tkNode *current;
+	tkNode *next;
+	
 	tempf->fileName = fileName;
 	tempf->Count = 1;
 	tempf->next = NULL;
-
+	
 	indxPos = Hash(firstChar);
-
-	//if that position in the array is empty, add it there
+	
+/*
 	if (indx->Array[indxPos].tk == NULL) {
+		printf("insert to front");
 		indx->Array[indxPos].tk = tk;
 		indx->Array[indxPos].fileNodePTR = tempf;
 		return 0;
@@ -41,64 +41,60 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 	tempt->fileNodePTR = tempf;
 	tempt->next = NULL;
 
-	//this should set the previous node pointer to the token node
-	//the bucket in the hash table is pointing at
-   	tkNode* current = &indx->Array[indxPos];
-	int a;
-	fileNode* prevFile = current->fileNodePTR;
-	//if there is only one token node in the list
+   	current = &indx->Array[indxPos];
+	prevFile = current->fileNodePTR;
 	if (current != NULL && current->next == NULL) {
 		a = strcmp(current->tk, tempt->tk);
 		if (a > 0) {
-			//insert before
+			printf("insert token before\n");
 			tempt->next = current;
 			indx->Array[indxPos].next = tempt;
 			return 1;
 		}
 		if (a < 0) {
-			//insert after
+			printf("insert token after\n");
 			current->next = tempt;
 			tempt->next = NULL;
 			return 1;
 		}
 		if (a == 0) {
-			//fileNode* prevFile = previous->fileNodePTR;
 			if (prevFile != NULL && prevFile->next == NULL) {
 				a = strcmp(prevFile->fileName, tempf->fileName);
 				if (a > 0) {
-					//insert before
+					printf("insert file before\n");
 					tempf->next = prevFile;
 					current->fileNodePTR = tempf;
 					return 1;
 				}
 				if (a < 0) {
-					//insert after
+					printf("insert file after\n");
 					prevFile->next = tempf;
 					tempf->next = NULL;
 					return 1;
 				}
 				if (a == 0) {
-					//increment token count in file
+					printf("increment file count\n");
 					prevFile->Count++;
 					return 1;
 				}
 				return 0;
 			}
-			fileNode *currFile = prevFile->next;
+			currFile = prevFile->next;
 			while (currFile != NULL) {
 				a = strcmp(currFile->fileName, tempf->fileName);
 				if (a > 0) {
-					//insert before
+					printf("insert before\n");
 					tempf->next = currFile;
 					prevFile->next = tempf;
 					return 1;
 				}
 				if (a == 0) {
-					//increment Count because same filename
+					printf("increment count\n");
 					currFile->Count++;
 					return 1;
 				}
 				if (currFile->next == NULL) {
+					printf("walk through\n");
 					currFile->next = tempf;
 					tempf->next = NULL;
 					return 1;
@@ -110,64 +106,63 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 		}
 		return 0;
 	}
-	tkNode *next = current->next;
+	next = current->next;
 	while (next != NULL) {
 		a = strcmp(current->tk, tempt->tk);
 		if (a > 0) {
-			//insert before because previous is larger than current
+			printf("insert token before\n");
 			tempt->next = next;
 			current->next = tempt;
 			return 1;
 		}
 		if (a == 0) {
-            		int b = strcmp(prevFile->fileName, tempf->fileName);
-			//same token, move through file list
-			fileNode *currFile = current->fileNodePTR;
+			printf("begin walk through file list\n");
+            		b = strcmp(prevFile->fileName, tempf->fileName);
+			currFile = current->fileNodePTR;
 			if (currFile != NULL && currFile->next == NULL) {
 				if (b > 0) {
-					//add before
+					printf("insert file before\n");
 					tempf->next = currFile;
 					current->fileNodePTR = tempf;
 					return 1;
 				}
-				if (b < 0) {
-					//add after
+				else if (b < 0) {
+					printf("insert file after\n");
 					currFile->next = tempf;
 					tempf->next = NULL;
 					return 1;
 				}
-				if (b == 0) {
-					//increment token Count for file name
+				else {
+					printf("increment file count\n");
 					prevFile->Count++;
 					return 1;
 				}
 				return 0;
 			}
-			//make sure first file in list is smaller than given name
-			int c = strcmp(prevFile->fileName, tempf->fileName);
-			if (b > 0) {
-				//add before because first file is larger
+			c = strcmp(prevFile->fileName, tempf->fileName);*/
+			/*if (b > 0) {
+				printf("add file before\n");
 				tempf->next = currFile;
 				currFile->next = tempf;
 				return 1;
 			}
-			fileNode *nextFile = currFile->next;
+			nextFile = currFile->next;
 			while (nextFile != NULL) {
-				int b = strcmp(nextFile->fileName, tempf->fileName);
+				b = strcmp(nextFile->fileName, tempf->fileName);
 				if (b > 0) {
-					//add before
+					printf("add file before\n");
 					tempf->next = nextFile;
 					currFile->next = tempf;
 					return 1;
 
 				}
 				if (b == 0) {
-					//increment token Count
+					printf("increment file count\n");
 					nextFile->Count++;
 					return 1;
 				}
 				if (nextFile->next == NULL) {
-					//add after
+					printf("add file after");
 					nextFile->next = tempf;
 					tempf->next = NULL;
 					return 1;
@@ -176,25 +171,23 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 				nextFile = nextFile->next;
 			}
 		}
-		//if current->next is null add temp node to end
-		if (current->next = NULL) {
+		if (current->next == NULL) {
+			printf("add token after");
 			current->next = tempt;
 			tempt->next = NULL;
 			return 1;
 		}
-		//if previous token is less than current token continue walk
 		current = next;
 		next = next->next;
 	}
+	return 0;*/
 }
 
-//done no compile errors
 void IndexOutput(Index *indx) {
 	int i, j;
 	tkNode *tkNode_Ptr;
 	fileNode *fileNodeTmpPtr;
 	j = 0;
-	//check all buckets in index
 	for(i = 0; i < 36; i++)
 	{
 		if (indx->Array == NULL) {
@@ -205,32 +198,25 @@ void IndexOutput(Index *indx) {
 		if(indx->Array[i].fileNodePTR != NULL) {
 			fileNodeTmpPtr = indx->Array[i].fileNodePTR;
 		}
-		//while there is a token in the index bucket
 		while(tkNode_Ptr != NULL)
         {
-			//if the token is not null, print header with token
 			if(tkNode_Ptr->tk != NULL)
 			{
 				fprintf(file_write, "<list> %s \n \n", tkNode_Ptr->tk);
 			}
-			//while the fileNode is not null
 			while(fileNodeTmpPtr != NULL)
 			{
-				//if the next fileNode done, print the end of the list
 				if (fileNodeTmpPtr->next == NULL)
 				{
 					fprintf(file_write, " %s %d \n \n </list> \n \n", fileNodeTmpPtr->fileName, fileNodeTmpPtr->Count);
 					break;
-				//otherwise print the file nodes and counts
 				}
 				else
 				{
-					//if there are 5 nodes on a line, make a new line
 					if (j == 5)
 					{
 						fprintf(file_write, "\n");
 						j = 0;
-					//print the file nodes and counts
 					}
 					else
                     {
@@ -249,133 +235,126 @@ void IndexOutput(Index *indx) {
 	}
 }
 
-//done no compile errors
 int Hash(char c) {
-	//convert character to ascii
 	int charNum = c;
-	//check if character is 0-9 (48-57). If yes, put at front of array
 	if(charNum >= 48 && charNum <= 57) {
 		charNum = charNum - 48;
 		return charNum;
 	}
-	//check if character is a-z (65-90 if uppercase). If yes, put after numbers
-	if(charNum >= 65 && charNum <= 90) {
+	if(charNum >= 97 && charNum <= 122) {
 		charNum = charNum - 55;
 		return charNum;
 	}
-	//returns null, prints error message
 	printf("character not in expected range\n");
 	return 0;
 }
 
-//done
-//formerly ReadFile
-int hashToken(char* fileName)
+int hashToken(SortedListPtr list, char* fileName)
 {
-	//if the file isn't there
+	char c;
+	char* sep;
+	int size, i;
+	char* buffer;
+	char* token;
+	sep = " ";
+	
 	if (fileName == NULL)
     	{
         	printf("***File does not exist***\n");
 		return 1;
 	}
-	char c;
-	char *sep = (char*)calloc(1, (sizeof(char)));
-	char* test = (char*)calloc(1,(sizeof(char)));
-	test = "";
-	sep = " ";//delimiter
-	//check access permissions
-	int a = access(fileName, F_OK);
-	//if we have permission, open and read
-	if (a == 0)
+
+	if (access(fileName, F_OK) == 0)
     	{
-		//open given file, put into global file variable
 		file_read = fopen(fileName, "r");
-		//get the first character
-		c = getc(file_read);
-		//until end of file is reached concatenate all characters
-		while (c != EOF)
+		fseek(file_read, 0L, SEEK_END);
+		size = ftell(file_read);
+		buffer = calloc(size, sizeof(char));
+		fseek(file_read, 0L, SEEK_SET);
+		printf("%d\n", size);
+		for(i = 0; i < size; i++)
 		{
-			c = tolower(c);
-			test = Concat(test, c);
 			c = getc(file_read);
+			if (c <= 90 || c >= 65 ) {
+				c = tolower(c);
+			}
+			if (c == EOF) {
+				buffer[i] = '\0';
+			} else {
+				buffer[i] = c;
+			}
 		}
+		printf("%s\n", buffer);
 	}
-   	if (a != 0)
+   	else
     	{
 		printf("cannot read from file\n");
 		return 1;
 	}
-	tokenizer = TKCreate(sep, test);//create tokenzier object passing separator and token string
-	char *token = TKGetNextToken(tokenizer);
-	while(token != NULL)//parse and insert tokens into hash table
+	tokenizer = TKCreate(sep, buffer);/*create tokenzier object passing separator and token string*/
+	for (i = 0; i < size; i++);
     	{
-		IndexInsert(indx, token, fileName);
-       		token = TKGetNextToken(tokenizer);
-    	}
-	free (token);
+		token = TKGetNextToken(tokenizer);
+		IndexInsert(list, indx, token, fileName);
+   	}
+	TKDestroy(tokenizer);
 	fclose(file_read);
 	return 0;
 }
-//reads directory using user input. If a file is found calls
-//hashToken function which reads file content and tokenizes it
 int ReadDir(char* dirPath)
 {
-	const char* dirPATH = (const char*)dirPath; //string contains directory path *path
-	char *fileAccessPath; //string containing file path *filePath
-	DIR *dirStream; //directory stream *dir
-	struct dirent *readDir; //*entry;
-	//if file hash it
-	if((readDir = opendir(dirPATH)) == 0)
+	const char* dirPATH = (const char*)dirPath; 
+	char *fileAccessPath; 
+	DIR *dirStream; 
+	struct dirent *readDir;
+	list = SLCreate(cf, df);
+	if((opendir(dirPATH)) == 0)
 	{
-		hashToken((char*)dirPATH);
+		hashToken(list, (char*)dirPATH);
 		return 0;
 	}
-	//search through the file system to find and read all files
+	dirStream = opendir(dirPATH);
 	while((readDir = readdir(dirStream)) != 0)
 	{
-		if(readDir->d_type == DT_REG && strcmp(readDir->d_name, ".DS_Store")) //not hidden file
+		if(readDir->d_type == DT_REG && strcmp(readDir->d_name, ".DS_Store")) 
         	{
 			fileAccessPath = (char*)dirPATH;
-			fileAccessPath = Concat((char*)dirPATH, '/');//add "/" to string in dirPath
+			fileAccessPath = Concat((char*)dirPATH, '/');
 			fileAccessPath = ConcatStr(fileAccessPath, readDir->d_name);
-			hashToken(fileAccessPath);	//hash file
+			hashToken(list, fileAccessPath);	
 		}
-		else if(readDir->d_type == DT_DIR)//it is a directory
+		else if(readDir->d_type == DT_DIR)
 		{
 			if(!strcmp(readDir->d_name,".") || !strcmp(readDir->d_name,".."))
-            		{	//if directory is a . or .. skip it
+            		{	
 				continue;
 
 			}
 			else
             		{
 				dirPATH = Concat((char*)dirPATH, '/');
-				dirPATH = ConcatStr((char*)dirPATH, readDir->d_name);	//concatenate "/" and directory name for recursing
+				dirPATH = ConcatStr((char*)dirPATH, readDir->d_name);	
 				ReadDir((char*)dirPATH);
-				dirPATH = dirPath;	//after recursing reset path to current directory
+				dirPATH = dirPath;	
 			}
 		}
 	}
 	closedir(dirStream);
 	return 0;
 }
-//done
+
 char* Concat(char* string, char c) {
-	int length = strlen(string);
-	char* test = calloc(1,(length * sizeof(char)));
+	char* test = malloc(sizeof(char));
 	test = strncat(string, &c, 1);
 	return test;
 }
-//done
 char* ConcatStr(char* p1, char* p2) {
-    int length = strlen(p2);
-	char* test = calloc(1,(length * sizeof(char)));
+	char* test;
 	test = strcat(p1, p2);
 	return test;
 }
 
 void IndexDestroy(Index *indx) {
-	//check if there is any data in hash table
 	int i=0;
 	tkNode *current_TK_temp = &indx->Array[0];
  	tkNode *next_TK_temp = NULL;
@@ -385,13 +364,9 @@ void IndexDestroy(Index *indx) {
 		current_File_temp = indx->Array[0].fileNodePTR;
 		next_File_temp = NULL;
 	}
-	//go through all 36 buckets of hashtable
 	for(i = 0; i < 36; i++) {
-		//if the bucket is not null
 		if (current_TK_temp != NULL) {
-			//if there are no tokens after the first token
 			if (next_TK_temp == NULL) {
-				//free that token and continue through the buckets
 				current_TK_temp = NULL;
 				for(current_File_temp = current_TK_temp->fileNodePTR; current_File_temp != NULL; current_File_temp = next_File_temp) {
 					next_File_temp = current_File_temp->next;
@@ -403,17 +378,13 @@ void IndexDestroy(Index *indx) {
 				continue;
 			}
 			for(current_TK_temp = indx->Array[i].next; current_TK_temp != NULL; current_TK_temp = next_TK_temp) {
-				//if the current_TK-temp tkNode doesn't have a fileNode
 				if (current_TK_temp->fileNodePTR == NULL) {
-					//free that tkNode, continue walking through tkNodes
 					next_TK_temp = current_TK_temp->next;
 					current_TK_temp->tk = NULL;
 					free(current_TK_temp);
 					continue;
 				}
-				//if there is only one fileNode in the tkNode
 				if (current_TK_temp->fileNodePTR->next == NULL) {
-					//free the fileNode and tkNode, continue walking
 					next_TK_temp = current_TK_temp->next;
 					current_TK_temp->tk = NULL;
 					current_File_temp->fileName = NULL;
@@ -422,20 +393,16 @@ void IndexDestroy(Index *indx) {
 					free(current_TK_temp);
 					continue;
 				}
-				//while there are more fileNodes in the tkNode
 				for(current_File_temp = current_TK_temp->fileNodePTR; current_File_temp != NULL; current_File_temp = next_File_temp) {
-					//walk through and free the files
 					next_File_temp = current_File_temp->next;
 					current_File_temp->fileName = NULL;
 					current_File_temp->Count = 0;
 					free(current_File_temp);
 				}
-				//free the tkNode and continue walking
 				free(current_TK_temp);
 			}
 		}
 	}
-	//after all tkNodes and fileNodes are freed, free index and return
 	free(indx);
 }
 

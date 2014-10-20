@@ -8,7 +8,6 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
-//#include "tokenizer.h"//is this correct? without this I get errors maybe we have to merge the tokenizer and indexer .h files
 struct TokenizerT_ {
 	char* copied_string;
 	char* delimiters;
@@ -38,10 +37,9 @@ struct fileNode {
 	struct fileNode* next;
 };
 typedef struct fileNode fileNode;
-//global variables definition
-FILE *file_read;    //pointer to file to read from
-FILE *file_write;   //pointer to file to output hash content
-Index *indx;        //pointer to hash table
+FILE *file_read;    
+FILE *file_write;  
+Index *indx;       
 /*creates a new hashtable to index*/
 Index *IndexCreate(char* outputName);
 
@@ -55,7 +53,7 @@ void IndexOutput(Index *indx);
 int Hash(char c);
 
 /*reads the file and returns string*/
-int hashToken(char* fileName);//NEW 10/19 5.13PM
+int hashToken(char* fileName);
 
 /*reads from directory:*/
 int ReadDir(char* dirpath);
@@ -68,10 +66,7 @@ char* ConcatStr(char* p1, char* p2);
 
 /*destroys indexer*/
 void IndexDestroy(Index *indx);
-
-//tokenizer methods
-typedef struct TokenizerT_ TokenizerT;
-
+/*tokenizer shit*/
 TokenizerT* tokenizer;
 
 TokenizerT *TKCreate(char *separators, char *ts);
@@ -91,4 +86,35 @@ int is_oct_digit(char oct_digit);
 char* unescape_string(char* string);
 
 char is_delimiter(char character, char* delimiters);
+/*sorted list shit*/
+struct Node {
+	void* data;
+	struct Node* next;
+	int refC;
+};
+typedef struct Node ListNode;
+
+struct SortedList {
+	ListNode *head;
+	int (*CompareFuncT)(void*, void*);
+	void (*DestructFuncT)(void*);
+};
+typedef struct SortedList* SortedListPtr;
+
+struct SortedListIterator {
+	ListNode *head;
+};
+typedef struct SortedListIterator* SortedListIteratorPtr;
+
+typedef int (*CompareFuncT)(void*, void*);
+typedef void (*DestructFuncT)(void*);
+
+SortedListPtr SLCreate(CompareFuncT cf, DestructFuncT df);
+void SLDestroy(SortedListPtr list);
+int SLInsert(SortedListPtr list, void *newObj);
+int SLRemove(SortedListPtr list, void *newObj);
+SortedListIteratorPtr SLCreateIterator(SortedListPtr list);
+void SLDestroyIterator(SortedListIterator iter);
+void* SLGetItem(SortedListIteratorPtr iter);
+void* SLNextItem(SortedListIteratorPtr iter);
 #endif
