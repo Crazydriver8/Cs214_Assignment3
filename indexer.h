@@ -1,10 +1,14 @@
 #ifndef INDEXER_H
 #define INDEXER_H
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <dirent.h>
+#include <errno.h>
+#include "tokenizer.c"//is this correct? without this I get errors maybe we have to merge the tokenizer and indexer .h files
 
 /*index hashtable*/
 struct Indexer {
@@ -33,7 +37,7 @@ typedef struct fileNode fileNode;
 FILE *file_read;    //pointer to file to read from
 FILE *file_write;   //pointer to file to output hash content
 Index *indx;        //pointer to hash table
-
+TokenizerT* tokenizer;
 /*creates a new hashtable to index*/
 Index *IndexCreate(char* outputName);
 
@@ -47,7 +51,7 @@ void IndexOutput(Index *indx);
 int Hash(char c);
 
 /*reads the file and returns string*/
-char* ReadFile(char* fileName);
+int hashToken(char* fileName);//NEW 10/19 5.13PM
 
 /*reads from directory:*/
 int ReadDir(char* dirpath);

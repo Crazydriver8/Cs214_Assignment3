@@ -1,7 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include <dirent.h>
 #include "indexer.h"
 //done no compile errors
@@ -44,11 +40,11 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 	tempt->tk = tk;
 	tempt->fileNodePTR = tempf;
 	tempt->next = NULL;
-	
+
 	//this should set the previous node pointer to the token node
 	//the bucket in the hash table is pointing at
-	tkNode *current = &indx->Array[indxPos];
-    	int a;
+   	tkNode* current = &indx->Array[indxPos];
+	int a;
 	fileNode* prevFile = current->fileNodePTR;
 	//if there is only one token node in the list
 	if (current != NULL && current->next == NULL) {
@@ -142,14 +138,14 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 				}
 				if (b == 0) {
 					//increment token Count for file name
-					currFile->Count++;
+					prevFile->Count++;
 					return 1;
 				}
 				return 0;
 			}
 			//make sure first file in list is smaller than given name
-			int c = strcmp(currFile->fileName, tempf->fileName);
-			if (c > 0) {
+			int c = strcmp(prevFile->fileName, tempf->fileName);
+			if (b > 0) {
 				//add before because first file is larger
 				tempf->next = currFile;
 				currFile->next = tempf;
@@ -170,7 +166,7 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 					nextFile->Count++;
 					return 1;
 				}
-				if (currFile->next == NULL) {
+				if (nextFile->next == NULL) {
 					//add after
 					nextFile->next = tempf;
 					tempf->next = NULL;
@@ -181,8 +177,8 @@ int IndexInsert(Index *indx, char* tk, char* fileName) {
 			}
 		}
 		//if current->next is null add temp node to end
-		if (next = NULL) {
-			next = tempt;
+		if (current->next = NULL) {
+			current->next = tempt;
 			tempt->next = NULL;
 			return 1;
 		}
@@ -267,84 +263,94 @@ int Hash(char c) {
 }
 
 //done
-char* ReadFile(char* fileName) {
+//formerly ReadFile
+int hashToken(char* fileName)
+{
 	//if the file isn't there
-	if (fileName == NULL) {
-		printf("file does not exist\n");
-		return NULL;
+	if (fileName == NULL)
+    	{
+        	printf("***File does not exist***\n");
+		return 1;
 	}
-	//make test variables for character and string, null out
 	char c;
+	char *sep = (char*)calloc(1, (sizeof(char)));
 	char* test = (char*)calloc(1,(sizeof(char)));
 	test = "";
-	//check access permissions, should return 0 if ok
+	sep = " ";//delimiter
+	//check access permissions
 	int a = access(fileName, F_OK);
 	//if we have permission, open and read
-	if (a == 0) {
+	if (a == 0)
+    	{
 		//open given file, put into global file variable
 		file_read = fopen(fileName, "r");
 		//get the first character
 		c = getc(file_read);
 		//until end of file is reached concatenate all characters
-		while (c != EOF) {
+		while (c != EOF)
+		{
 			c = tolower(c);
 			test = Concat(test, c);
 			c = getc(file_read);
 		}
-		fclose(file_read);
-		return test;
 	}
-	if (a != 0) {
-		printf("cannot read from file\n");
-		return NULL;
+   	if (a != 0)
+    	{
+		printf("cannot read from file");
+		return 1;
 	}
+	tokenizer = TKCreate(sep, test);//create tokenzier object passing separator and token string
+	char *token = TKGetNextToken(tokenizer);
+	while(token != NULL)//parse and insert tokens into hash table
+    	{
+		IndexInsert(indx, token, fileName);
+       		token = TKGetNextToken(tokenizer);
+    	}
+	free (token);
+	fclose(file_read);
+	return 0;
 }
-
-int ReadDir(char* dirPath) {
-	char *dPath = dirPath;
-	char *fPath;
-	char* dName;
-	DIR *rDir;
-	struct dirent *dire;
-	char* output = (char*)calloc(1,(sizeof(char)));
-	//checks if directory path is a file
-	if((rDir = opendir(dPath)) == 0) {
-		//if so reads the file and returns the output
-		output = ReadFile(dirPath);
+//reads directory using user input. If a file is found calls
+//hashToken function which reads file content and tokenizes it
+int ReadDir(char* dirPath)
+{
+	char *dirPATH = dirPath; //string contains directory path *path
+	char *fileAccessPath; //string containing file path *filePath
+	DIR *dirStream; //directory stream *dir
+	struct dirent *readDir; //*entry;
+	//if file hash it
+	if((readDir = opendir(dirPATH)) == 0)
+	{
+		hashToken(fileAccessPath);
 		return 0;
 	}
-	//while directory entry is not null (visits each directory)
-	while((dire = readdir(rDir)) != 0) {
-		//if the type is a file
-		if (dire->dtype = DT_REG) {
-			//find the file path
-			fPath = dirPath;
-			fPath = Concat(dirPath, '/');
-			fPath = ConcatStr(fPath, dire->d_name);
-			//read and output the file
-			output = ReadFile(fPath);
+	//search through the file system to find and read all files
+	while((readDir = readdir(dirStream)) != 0)
+	{
+		if(readDir->d_type == DT_REG && strcmp(readDir->d_name, ".DS_Store")) //not hidden file
+        	{
+			fileAccessPath = dirPATH;
+			fileAccessPath = Concat(dirPATH, '/');//add "/" to string in dirPath
+			fileAccessPath = ConcatStr(fileAccessPath, readDir->d_name);
+			hashToken(fileAccessPath);	//hash file
 		}
-		//if the type is a directory
-		if (dire->d_type = DT_DIR) {
-			//check if directory is . or ..
-			dName = dire->d_name;
-			if (strcmp(dName, '.') == 0 || strcmp(dName, '.') == 0) {
-				//if so continue looping
+		else if(readDir->d_type == DT_DIR)//it is a directory
+		{
+			if(!strcmp(readDir->d_name,".") || !strcmp(readDir->d_name,".."))
+            		{	//if directory is a . or .. skip it
 				continue;
-			} else {
-				//concat path and / for standard file path format
-				dPath = Concat(dPath, '/');
-				//concat path and directory name to keep format
-				dPath = ConcatStr(dPath, dire->d_name);
-				//recursively read from the new path
-				ReadDir(dPath);
-				//reset the path afterward
-				dPath = dirPath;
+
+			}
+			else
+            		{
+				dirPATH = Concat(dirPATH, '/');
+				dirPATH = ConcatString(dirPATH, readDir->d_name);	//concatenate "/" and directory name for recursing
+				traverse_Dir(dirPATH);
+				dirPATH = dirPath;	//after recursing reset path to current directory
 			}
 		}
 	}
-	//close the directory
-	closedir(rDir);
+	closedir(dirStream);
 	return 0;
 }
 //done
@@ -361,7 +367,7 @@ char* ConcatStr(char* p1, char* p2) {
 	test = strcat(p1, p2);
 	return test;
 }
-//done no compile errors
+
 void IndexDestroy(Index *indx) {
 	//check if there is any data in hash table
 	if (indx == NULL) {
@@ -425,3 +431,4 @@ void IndexDestroy(Index *indx) {
 	//after all tkNodes and fileNodes are freed, free index and return
 	free(indx);
 }
+
