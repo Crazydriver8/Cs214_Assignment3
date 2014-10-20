@@ -344,8 +344,8 @@ int ReadDir(char* dirPath)
 			else
             		{
 				dirPATH = Concat(dirPATH, '/');
-				dirPATH = ConcatString(dirPATH, readDir->d_name);	//concatenate "/" and directory name for recursing
-				traverse_Dir(dirPATH);
+				dirPATH = ConcatStr(dirPATH, readDir->d_name);	//concatenate "/" and directory name for recursing
+				ReadDir(dirPATH);
 				dirPATH = dirPath;	//after recursing reset path to current directory
 			}
 		}

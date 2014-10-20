@@ -8,8 +8,13 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
-#include "tokenizer.h"//is this correct? without this I get errors maybe we have to merge the tokenizer and indexer .h files
-
+//#include "tokenizer.h"//is this correct? without this I get errors maybe we have to merge the tokenizer and indexer .h files
+struct TokenizerT_ {
+	char* copied_string;
+	char* delimiters;
+	char* current_position;
+};
+typedef struct TokenizerT_ TokenizerT;
 /*index hashtable*/
 struct Indexer {
 	struct tkNode* Array;
@@ -37,7 +42,6 @@ typedef struct fileNode fileNode;
 FILE *file_read;    //pointer to file to read from
 FILE *file_write;   //pointer to file to output hash content
 Index *indx;        //pointer to hash table
-TokenizerT* tokenizer;
 /*creates a new hashtable to index*/
 Index *IndexCreate(char* outputName);
 
@@ -65,4 +69,26 @@ char* ConcatStr(char* p1, char* p2);
 /*destroys indexer*/
 void IndexDestroy(Index *indx);
 
+//tokenizer methods
+typedef struct TokenizerT_ TokenizerT;
+
+TokenizerT* tokenizer;
+
+TokenizerT *TKCreate(char *separators, char *ts);
+
+void TKDestroy(TokenizerT *tk);
+
+char *TKGetNextToken(TokenizerT *tk);
+
+char is_escape_character(char character);
+
+int char_to_hex(char character);
+
+int char_to_oct(char character);
+
+int is_oct_digit(char oct_digit);
+
+char* unescape_string(char* string);
+
+char is_delimiter(char character, char* delimiters);
 #endif
