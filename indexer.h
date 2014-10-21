@@ -44,7 +44,7 @@ Index *indx;
 Index *IndexCreate(char* outputName);
 
 /*take in hashed list, insert it into index*/
-int IndexInsert(Index *indx, char* tk,  char* fileName);
+void IndexInsert(Index *indx, char* tk,const  char* fileName);
 
 /*output contents of index to file*/
 void IndexOutput(Index *indx);
@@ -53,7 +53,7 @@ void IndexOutput(Index *indx);
 int Hash(char c);
 
 /*reads the file and returns string*/
-int hashToken(char* fileName);
+int hashToken(const char* fileName);
 
 /*reads from directory:*/
 int ReadDir(char* dirpath);
@@ -66,7 +66,7 @@ char* ConcatStr(char* p1, char* p2);
 
 /*destroys indexer*/
 void IndexDestroy(Index *indx);
-/*tokenizer shit*/
+/*tokenizer resources*/
 TokenizerT* tokenizer;
 
 TokenizerT *TKCreate(char *separators, char *ts);
@@ -86,35 +86,6 @@ int is_oct_digit(char oct_digit);
 char* unescape_string(char* string);
 
 char is_delimiter(char character, char* delimiters);
-/*sorted list shit*/
-struct Node {
-	void* data;
-	struct Node* next;
-	int refC;
-};
-typedef struct Node ListNode;
 
-struct SortedList {
-	ListNode *head;
-	int (*CompareFuncT)(void*, void*);
-	void (*DestructFuncT)(void*);
-};
-typedef struct SortedList* SortedListPtr;
-
-struct SortedListIterator {
-	ListNode *head;
-};
-typedef struct SortedListIterator* SortedListIteratorPtr;
-
-typedef int (*CompareFuncT)(void*, void*);
-typedef void (*DestructFuncT)(void*);
-
-SortedListPtr SLCreate(CompareFuncT cf, DestructFuncT df);
-void SLDestroy(SortedListPtr list);
-int SLInsert(SortedListPtr list, void *newObj);
-int SLRemove(SortedListPtr list, void *newObj);
-SortedListIteratorPtr SLCreateIterator(SortedListPtr list);
-void SLDestroyIterator(SortedListIterator iter);
-void* SLGetItem(SortedListIteratorPtr iter);
-void* SLNextItem(SortedListIteratorPtr iter);
+int compareStrings(char *p1, char *p2);
 #endif
