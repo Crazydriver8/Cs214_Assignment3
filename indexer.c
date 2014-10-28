@@ -1,9 +1,9 @@
 #include <dirent.h>
 #include "indexer.h"
 Index *IndexCreate(char* indexName) {
+	int i;
 	Index* index = (Index*)calloc(1, sizeof(Index));
 	index->Array = malloc(36 * sizeof(tkNode));
-	int i;
 	/*initialize the hash table*/
 	for(i = 0; i < 36; i++){
         index->Array[i].next = NULL;
@@ -38,30 +38,24 @@ void IndexInsert (Index *indx, char *tk,const char *fileName)
 	myFileNode->Count = 1;
 	hashPosition = Hash(tokenNode);
 	/*front of linked list is empty*/
-	printf("hash position is %d\n", hashPosition);
-	printf("token is %s\n", indx->Array[hashPosition].tk);
 	if(indx->Array[hashPosition].tk == NULL)
 	{
         	indx->Array[hashPosition].tk = tk;
-		printf("new token is %s\n", indx->Array[hashPosition].tk);
        		indx->Array[hashPosition].fileNodePTR = myFileNode;
     	}
-   	else 
-    	{    
+   	else
+    	{
 		/*linked list not empty*/
-        	myTokenNode = calloc(1,sizeof(tkNode));
+        	myTokenNode = malloc(sizeof(tkNode));
 	        myTokenNode->tk = tk;
-		printf("myTokenNode = %s\n", myTokenNode->tk);
 	        myTokenNode->next = NULL;
 	        myTokenNode->fileNodePTR = myFileNode;
 	        current = &indx->Array[hashPosition];
 	        previous = NULL;
-        
+
 	        /*determine if a duplicate token exists*/
 	        while(current != NULL)
 	        {
-	            printf("1st %s\n",myTokenNode->tk);
-	            printf("2nd %s\n",current->tk);
 	            dupCompare = compareStrings(myTokenNode->tk, current->tk);
 	            if(dupCompare == 0){
 	            duplicate = 1;
@@ -97,7 +91,7 @@ void IndexInsert (Index *indx, char *tk,const char *fileName)
                      			indx->Array[hashPosition].next = myTokenNode;
 	                        	myTokenNode->tk = indx->Array[hashPosition].tk;
 	                      		myTokenNode->fileNodePTR = indx->Array[hashPosition].fileNodePTR;
-	    			        indx->Array[hashPosition].tk = tk;
+								indx->Array[hashPosition].tk = tk;
 	        	                indx->Array[hashPosition].fileNodePTR = myFileNode;
 		                }
        		         }
@@ -109,7 +103,7 @@ void IndexInsert (Index *indx, char *tk,const char *fileName)
                 	}
          	       return;
 		}
-			
+
 		else if(compare > 0 && !duplicate)
 		{
                 /*token goes at the end of linked list*/
@@ -118,7 +112,7 @@ void IndexInsert (Index *indx, char *tk,const char *fileName)
         	            current->next = myTokenNode;
         	            return;
         	        }
-                
+
       		}
         	/*increase file frequency count or add new file node*/
         	else if(compare == 0)
@@ -142,7 +136,7 @@ void IndexInsert (Index *indx, char *tk,const char *fileName)
                                				 return;
                             			}
                            			 /*files out of order*/
-                     			       else 
+                     			       else
                   			       {
                                 			/*take file_node out of list to re-sort*/
                             				prevFile->next = currFile->next;
@@ -185,7 +179,7 @@ void IndexInsert (Index *indx, char *tk,const char *fileName)
                 	MynewFile->Count = 1;
                		MynewFile->next = NULL;
                 	prevFile->next = MynewFile;
-               		return;   
+               		return;
             	}
             	previous = current;
             	current = current->next;
@@ -237,6 +231,7 @@ void IndexOutput(Index *indx) {/*original*/
 					}
 				}
 			}
+			j = 0;
 			tkNode_Ptr = tkNode_Ptr->next;
 			if (tkNode_Ptr != NULL)
             {
@@ -248,7 +243,6 @@ void IndexOutput(Index *indx) {/*original*/
 
 int Hash(char c) {
 	int charNum = c;
-	printf("charNum = %d\n", c);
 	if(charNum >= 48 && charNum <= 57) {
 		charNum = charNum - 48;
 		return charNum;
@@ -257,93 +251,88 @@ int Hash(char c) {
 		charNum = charNum - 87;
 		return charNum;
 	}
-	printf("character not in expected range\n");
+	printf("Character not in expected range!\n ");
+	
 	return 0;
 }
 
 int hashToken(const char *fileName){
-    if(fileName == NULL){   //file doens't exist
-        printf("***Filename does not exist***\n");
-        return 1;
-    }
     int fileCheck;
-    char c, *sep;
+    char c, *sep, *token;
     char *string = (char*)malloc(sizeof(char));
+    
     string = "";
-    sep = " \t\n";
+    sep = " ~`!@#$%^&*()-_=+{[}]|;:\"<,.>/?\n";
     fileCheck = access(fileName, F_OK);
     if(fileCheck == 0){ /*open file */
         file_read = fopen(fileName, "r");
         c = getc(file_read);
         while(c != EOF){    /*create string to send to tokenizer*/
             c = tolower(c);
-            printf("c = %c\n", c);
             string = Concat(string, c);
             c = getc(file_read);
         }
-        printf("after while\n");
     }
-        printf("after if\n");
     tokenizer = TKCreate(sep, string);
-    printf("after call to tokenizer\n");
-    char* token = TKGetNextToken(tokenizer);
-    printf("after get next token\n");
-    while(token != NULL ){ /*parse and insert tokens into hash table*/
-    	printf("%s\n", token);
-	IndexInsert(indx, token, fileName);
-	token = TKGetNextToken(tokenizer);        
-    }
-    printf("before free token\n");
-    free(token);
+    /*free(string);*/
+    token = TKGetNextToken(tokenizer);
+	while(token != NULL ){ /*parse and insert tokens into hash table*/
+		IndexInsert(indx, token, fileName);
+		token = TKGetNextToken(tokenizer);
+	}
+    /*free(token);*/
     fclose(file_read);
-    printf("after file close\n");
     return 0;
 }
 
 int ReadDir(char* dirPath)
 {
-	printf("readdir hit\n");
-    char *dirPATH = dirPath; //string contains directory path *path
-    char *fileAccesPath; //string containing file path *filePath
-    DIR *dirStream; //directory stream *dir
-    struct dirent *readDir; //*entry;
-    //if file hash it
-    if((readDir = opendir(dirPATH)) == 0)
+    char *dirPATH = dirPath; /*string contains directory path*/
+    char *fileAccesPath; /*string containing file path */
+    DIR *dirStream; /*directory stream */
+    struct dirent *readDir;
+    /*if file hash it*/
+    if(access(dirPATH, F_OK) ==-1)
     {
-		printf("hashtoken reached\n");
+		printf("Directory or file doesn't exist\n");
+		return 0;
+	}
+    if((dirStream = opendir(dirPATH)) == 0)
+    {
         hashToken(dirPATH);
         return 0;
     }
-    //search through the file system to find and read all files
+    
+    /*search through the file system to find and read all files*/
     while((readDir = readdir(dirStream)) != 0)
     {
-        if(readDir->d_type == DT_REG && compareStrings(readDir->d_name, ".DS_Store")) //not hidden file
+        if(readDir->d_type == DT_REG && compareStrings(readDir->d_name, ".DS_Store")) /*not hidden file*/
         {
 			fileAccesPath = dirPATH;
-			fileAccesPath = Concat(dirPATH, '/');//add "/" to string in dirPath
+			fileAccesPath = Concat(dirPATH, '/');/*add "/" to string in dirPath*/
 			fileAccesPath = ConcatStr(fileAccesPath, readDir->d_name);
-			hashToken(fileAccesPath);	//hash file
+			hashToken(fileAccesPath);
 		}
-		else if(readDir->d_type == DT_DIR)//it is a directory
+		else if(readDir->d_type == DT_DIR)/*it is a directory*/
 		{
 			if(!compareStrings(readDir->d_name,".") || !compareStrings(readDir->d_name,".."))
-            {	//if directory is a . or .. skip it
+            {	/*if directory is a . or .. skip it*/
 				continue;
 
 			}
 			else
             {
 				dirPATH = Concat(dirPATH, '/');
-				dirPATH = ConcatStr(dirPATH, readDir->d_name);	//concatenate "/" and directory name for recursing
+				dirPATH = ConcatStr(dirPATH, readDir->d_name);	/*concatenate "/" and directory name for recursing*/
 				ReadDir(dirPATH);
-				dirPATH = dirPath;	//after recursing reset path to current directory
+				dirPATH = dirPath;	/*after recursing reset path to current directory*/
 			}
 		}
     }
     closedir(dirStream);
 	return 0;
 }
-char *Concat(char *string, char letter){    //concatenate character to end of a string
+char *Concat(char *string, char letter){    /*concatenate character to end of a string*/
     char *str = string;
     char let = letter;
     size_t len = strlen(str);
@@ -354,7 +343,7 @@ char *Concat(char *string, char letter){    //concatenate character to end of a 
     return result;
 }
 
-char *ConcatStr(char *string1, char *string2){   //concatenate 2 strings together
+char *ConcatStr(char *string1, char *string2){   /*concatenate 2 strings together*/
     size_t len = strlen(string2);
     int i;
     for(i = 0; i<len; i++){
@@ -366,23 +355,23 @@ void IndexDestroy(Index *indx) {
 	int i;
     tkNode *tempT, *next;
     fileNode *tempF, *next2;
-    for(i = 0; i < 36; i++){    
-        for(tempT = indx->Array[i].next; tempT != NULL; tempT = next){ 
+    for(i = 0; i < 36; i++){
+        for(tempT = indx->Array[i].next; tempT != NULL; tempT = next){
             next = tempT->next;
             tempT->tk = NULL;
-            for(tempF = tempT->fileNodePTR; tempF != NULL; tempF = next2){ 
+            for(tempF = tempT->fileNodePTR; tempF != NULL; tempF = next2){
                 next2 = tempF->next;
                 tempF->fileName = NULL;
                 tempF->Count = 0;
-                free(tempF);
+                /*free(tempF);*/
             }
-            free(tempT);
+            /*free(tempT);*/
         }
+    /*free(indx);*/
     }
-    free(indx);
     if(tokenizer != NULL){
-        TKDestroy(tokenizer);
-    }   
+        /*TKDestroy(tokenizer);*/
+    }
     fclose(file_write);
 }
 
